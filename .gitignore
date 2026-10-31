@@ -1,0 +1,24 @@
+# Runtime / private data (all workspaces)
+**/data/
+**/Downloads/
+**/Volume/
+**/Backups/
+**/.venv*/
+**/node_modules/
+**/__pycache__/
+*.py[cod]
+*.log
+*.sqlite*
+*.db
+*.db-*
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+**/Cookies
+**/Login Data
+**/Local State
+.DS_Store
+Thumbs.db
+Releases/

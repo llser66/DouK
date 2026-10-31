@@ -1,0 +1,14 @@
+* text=auto
+*.py text eol=lf
+*.js text eol=lf
+*.css text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.png binary
+*.ico binary
+*.icns binary
+
+# Preserve the bundled upstream snapshot byte for byte.
+TikTokDownloader/** -text

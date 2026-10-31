@@ -1,0 +1,152 @@
+.report-page{margin:0;background:#f5f8f6;color:#314d3e;font-family:"Segoe UI","Microsoft YaHei",sans-serif}.report-topbar{height:84px;border-bottom:1px solid #e2eae5;display:flex;align-items:center;justify-content:space-between;padding:0 max(28px,calc((100vw - 1120px)/2));background:#ffffffc9}.report-brand{display:flex;align-items:center;gap:13px;color:#234d39;text-decoration:none}.report-logo{height:37px;width:37px;display:grid;place-items:center;background:#e7f1e9;border:1px solid #d7e6dc;border-radius:10px;font-size:20px;font-weight:700}.report-brand strong{font-size:25px;letter-spacing:-1.5px}.report-brand strong span{color:#21936b}.report-brand small{border-left:1px solid #dce6df;padding-left:14px;margin-left:3px;font-size:12px;color:#81968a;letter-spacing:2px}.report-admin-link{font-size:12px;color:#778f80;text-decoration:none}.report-admin-link:hover{color:#168d68}.report-main{margin:0 auto;padding:46px 28px 25px;max-width:1176px}.report-heading{margin:0 0 30px}.report-eyebrow{font-size:10px;letter-spacing:2.4px;color:#9aaca0}.report-heading h1{font-size:31px;line-height:1.5;letter-spacing:-.7px;margin:13px 0 11px;font-weight:550;color:#294b38}.report-heading p{font-size:13px;color:#8b9d91;line-height:1.9;margin:0}.report-mobile-break{display:none}.report-layout{display:grid;grid-template-columns:minmax(0,1fr) 265px;gap:26px;align-items:start}.report-form-panel .panel-header{padding:22px 26px}.report-form-panel .panel-title{font-size:14px}.report-step{font-size:10px;color:#91a599}.report-form-panel .panel-body{padding:0 26px 24px}.report-page .field label{font-size:12px;margin-bottom:9px}.report-page .field input,.report-page .field select,.report-page .field textarea{font-size:13px;padding:12px;min-height:44px;background:#fcfefc;color:#486352}.report-page .field textarea{line-height:1.9;min-height:154px}.report-page .field input::placeholder,.report-page .field textarea::placeholder{color:#a3b2a8}.report-person-form{border:1px solid #e4ece6;padding:18px 18px 0;border-radius:9px;background:#fbfdfb;margin-bottom:23px}.report-person-form .form-grid{gap:0 15px}.report-person-form .field{min-width:0}.report-person-form .field input,.report-person-form .field select{min-width:0}.report-person-card{display:flex;align-items:center;gap:13px;padding:16px 18px;border:1px solid #dbeade;border-radius:9px;background:#f2f8f3;margin-bottom:23px}.report-person-avatar{display:grid;place-items:center;width:40px;height:40px;border-radius:11px;background:#e3efe5;color:#4a8560;font-size:18px;flex-shrink:0}.report-person-info{min-width:0;flex:1}.report-person-info b{display:block;font-size:14px;font-weight:500}.report-person-info small{display:block;color:#8b9e90;font-size:11px;line-height:1.8;margin-top:4px}.report-person-card .text-button{font-size:11px;white-space:nowrap}.report-links-field{margin-bottom:12px}.report-input-note{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:10px;line-height:1.8;color:#98aa9d;margin-top:8px}.report-muted{font-size:11px;color:#8b9d90;line-height:1.9}.report-error{font-size:12px;color:#b36055;line-height:1.8;min-height:1em;margin:10px 0}.report-submit-row{border-top:1px solid #edf1ee;padding-top:19px;display:flex;align-items:center;justify-content:space-between;gap:15px}.report-submit-row>span{font-size:10px;color:#9ba99f}.report-page .primary{padding:12px 25px;font-size:13px;min-height:43px;gap:14px}.report-page .primary:disabled{opacity:.55;cursor:not-allowed;transform:none}.report-note{background:#edf5ef;border:1px solid #dfece2;border-radius:11px;padding:25px 22px}.report-note-icon{width:34px;height:34px;background:#dcece0;color:#508565;display:grid;place-items:center;border-radius:10px;font-size:19px}.report-note h2{font-size:14px;font-weight:500;margin:18px 0 10px}.report-note h3{font-size:12px;font-weight:500;margin:16px 0 8px}.report-note p{font-size:11px;line-height:2;color:#879e8d;margin:0}.report-note-divider{border-top:1px solid #dce8df;margin:20px 0}.report-local-note{display:flex;gap:10px;padding:19px 6px}.report-local-note>span{color:#90ac99;margin-top:3px}.report-local-note p{margin:0;color:#9aaca0;font-size:10px;line-height:1.9}.report-receipts{margin-top:4px}.report-receipts .panel-header{gap:15px;flex-wrap:wrap}.report-receipt-actions{display:flex;gap:16px}.report-receipt-actions button{font-size:11px}.report-batch{padding:17px 26px 8px;border-bottom:1px solid #edf1ee}.report-batch:last-child{border-bottom:0}.report-batch-head{display:flex;justify-content:space-between;gap:15px;align-items:center;font-size:11px;color:#94a59a;margin-bottom:8px}.report-item{display:flex;gap:15px;justify-content:space-between;align-items:flex-start;padding:14px 0;border-top:1px solid #f0f3f1}.report-item-info{min-width:0;flex:1}.report-item-info b{font-size:12px;font-weight:500;line-height:1.8;display:block;overflow-wrap:anywhere}.report-item-info small{display:block;font-size:11px;color:#94a69a;line-height:1.9;overflow-wrap:anywhere;margin-top:3px}.report-item-info a{font-size:10px;color:#7d9b88;text-decoration:none;overflow-wrap:anywhere}.report-status{font-size:10px;border-radius:5px;padding:5px 9px;background:#f0f4f1;color:#91a196;white-space:nowrap;margin-top:2px}.report-status.success{background:#e9f5ec;color:#43805b}.report-status.attention{background:#fff6e7;color:#aa8654}.report-status.failed{background:#fcf0ed;color:#b77868}.report-receipt-foot{font-size:10px;line-height:1.9;color:#a1afa5;padding:4px 26px 18px;margin:0}.report-empty{padding:15px 0;font-size:12px;color:#94a69a;line-height:1.9}.report-footer{max-width:1176px;margin:0 auto;padding:24px 28px 30px;font-size:10px;color:#a1b0a6;display:flex;justify-content:space-between;gap:20px}.report-footer b{font-size:18px;color:#89a38e;margin-right:7px}.report-page select{cursor:pointer}.report-page button:focus-visible,.report-page a:focus-visible{outline:3px solid #a6d4bc;outline-offset:4px}.report-page [hidden]{display:none!important}
+@media(max-width:850px){.report-layout{grid-template-columns:minmax(0,1fr) 220px;gap:18px}.report-note{padding:22px 18px}.report-main{padding-top:34px}.report-heading h1{font-size:28px}}
+@media(max-width:650px){.report-topbar{height:68px;padding:0 20px}.report-brand{gap:9px}.report-brand strong{font-size:23px}.report-brand small{font-size:10px;padding-left:10px;letter-spacing:1px}.report-admin-link{font-size:11px}.report-main{padding:27px 17px 10px}.report-heading{margin-bottom:23px}.report-heading h1{font-size:26px;line-height:1.55;margin:11px 0 10px}.report-eyebrow{font-size:8px;letter-spacing:1.7px}.report-heading p{font-size:12px}.report-layout{grid-template-columns:1fr;gap:0}.report-side{display:none}.report-form-panel .panel-header{padding:20px}.report-form-panel .panel-body{padding:0 20px 20px}.report-person-form{padding:15px 13px 0}.report-person-form .form-grid{grid-template-columns:1fr 1fr;gap:0 12px}.report-person-form .field:nth-last-child(-n+2){grid-column:1/-1}.report-page .field input,.report-page .field select,.report-page .field textarea{font-size:16px}.report-person-card{padding:14px 13px;gap:10px}.report-person-info small{font-size:10px}.report-input-note{font-size:9px}.report-input-note>span:first-child{max-width:70%}.report-submit-row{align-items:center}.report-page .primary{padding:12px 21px;font-size:12px}.report-submit-row>span{font-size:9px}.report-receipt-actions{gap:13px}.report-receipt-actions button{font-size:10px}.report-batch{padding:14px 20px 6px}.report-receipt-foot{padding:6px 20px 18px}.report-footer{font-size:9px;padding:18px 20px 25px}.report-footer>span:last-child{display:none}.report-receipts .panel-title{font-size:12px}}
+
+.report-manual-toggle{display:block;margin:-8px 0 22px;font-size:11px}.report-account{border:1px solid #dfeae2;border-radius:9px;background:#f6faf7;padding:16px 18px;margin:0 0 22px}.report-account-header{display:flex;align-items:center;justify-content:space-between;gap:12px}.report-account b{font-size:12px;font-weight:500}.report-account b span{color:#93a598;font-size:10px;margin-left:8px}.report-account p{font-size:11px;line-height:1.8;color:#81968a;margin:6px 0}.report-account small{display:block;color:#98a89d;font-size:10px;line-height:1.9;margin-top:8px}.report-account .secondary{white-space:nowrap;font-size:11px}.report-account img{display:block;width:auto;max-width:min(100%,400px);max-height:440px;object-fit:contain;border-radius:8px;margin:12px auto}.report-account a{display:block;font-size:12px;color:#44866a;overflow-wrap:anywhere;margin:12px 0}.report-account .text-button{font-size:11px;margin-top:8px}
+@media(max-width:650px){.report-account{padding:13px}.report-account-header{align-items:flex-start;flex-wrap:wrap}.report-account-header>div{flex:1;min-width:170px}.report-account .secondary{padding:9px}}
+
+.report-add-note{font-size:11px;white-space:nowrap;margin-top:4px}.report-note-editor{padding:12px 0 18px;border-top:1px dashed #e0e9e2}.report-note-editor label{font-size:11px;color:#718c79;display:block;margin:4px 0 8px}.report-note-editor textarea{width:100%;box-sizing:border-box;font:inherit;font-size:12px;background:#fcfefc;border:1px solid #dfe9e1;border-radius:6px;padding:10px;color:#486352;resize:vertical}.report-note-editor button{font-size:11px;margin-top:8px}.report-note-editor span{font-size:11px;color:#81968a;margin-left:12px}.report-item{flex-wrap:wrap}.report-item-info{flex-basis:60%}
+
+.report-identity-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px}.report-identity-fields .field{margin-bottom:8px}.report-identity-fields+p{margin-top:0;padding-bottom:12px}@media(max-width:650px){.report-identity-fields{grid-template-columns:1fr;gap:0}}
+
+.report-account-list{display:grid;gap:7px;margin-top:10px}.report-verified-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e2ebe5;border-radius:7px;background:#fcfefc;padding:9px 12px}.report-verified-row>div{min-width:0}.report-verified-row b{overflow-wrap:anywhere}.report-verified-row small{margin:3px 0 0}.report-verified-row a{font-size:10px;margin:3px 0 0}.report-verified-row .text-button{margin:0;flex-shrink:0}
+
+/* Employee page uses the same legible system font and darker supporting text. */
+.report-heading p,.report-muted,.report-account p,.report-account small,.report-input-note,.report-item-info small,.report-receipt-foot,.report-empty{color:#596f60;font-size:12px}.report-item-info b,.report-account b{font-size:13px;font-weight:600}.report-page .report-status{font-size:12px}.report-page .text-button{font-size:12px;color:#356449}.report-page .report-error{color:#a33b30}.report-page .field label{font-size:13px;font-weight:600}.report-page .field input,.report-page .field textarea{color:#2f4938}.report-account-header b span{color:#5c7163;font-size:12px}.report-verified-row small{font-size:12px}.report-note p{font-size:12px;color:#5d7463}.report-receipt-actions button{font-size:12px}
+
+.report-verified-row small{overflow-wrap:anywhere}.report-verified-row b{font-size:14px;color:#2e503b}
+
+/* Keep the form and its receipts in the same column beside the help panel. */
+.report-primary{min-width:0;display:flex;flex-direction:column;gap:24px}.report-primary>.panel{width:100%;min-width:0;margin:0;box-sizing:border-box}.report-primary .report-receipts{margin:0}.report-item-info{min-width:0}.report-item{gap:10px 14px}.report-receipts .panel-header{padding-left:26px;padding-right:26px}
+@media(max-width:650px){.report-primary{gap:18px}.report-receipts .panel-header{padding-left:20px;padding-right:20px}}
+/* Match the compact administration workspace, with a single form alignment. */
+.report-page{font-family:var(--ui-font);color:#2e4838;background:#f6f8f6;font-size:13px}
+.report-topbar{height:70px;background:#fff}
+.report-main{padding-top:28px;max-width:1160px}
+.report-heading{margin-bottom:22px}
+.report-heading h1{font-size:26px;font-weight:600;letter-spacing:0;line-height:1.4;margin:0 0 8px}
+.report-heading p{font-size:13px;color:#718076}
+.report-layout{grid-template-columns:minmax(0,1fr) 245px;gap:22px}
+.report-primary{gap:20px}
+.report-page .panel{border:1px solid #e4ebe6;border-radius:12px;box-shadow:0 2px 5px #233d2f02}
+.report-page .panel-header{padding:17px 22px;border-bottom:1px solid #edf1ee}
+.report-page .panel-title{font-size:14px;font-weight:600}
+.report-form-panel .panel-body{padding:20px 22px}
+.report-person-form{padding:0 0 18px;margin:0 0 18px;border:0;border-bottom:1px solid #e9eeea;background:transparent;border-radius:0}
+.report-identity-fields{gap:14px}
+.report-page .field label{font-size:12px;font-weight:500;color:#526c5a;margin-bottom:7px}
+.report-page .field input,.report-page .field textarea{font-family:var(--ui-font);font-size:13px;border-color:#dfe7e1;background:#fcfdfc;min-height:42px;border-radius:6px;padding:10px 12px}
+.report-person-form .report-muted{margin:0;padding:0;font-size:11px;color:#75867b}
+.report-person-form details{margin-top:8px;font-size:11px;color:#6f8375}
+.report-person-form summary,.report-account-help summary{cursor:pointer;width:fit-content}
+.report-person-form details[open] .field{margin-top:10px}
+.report-account{padding:14px 16px;background:#f8fbf8;border:1px solid #e3ece5;margin-bottom:20px;border-radius:8px}
+.report-account-header{align-items:flex-start}
+.report-account b{font-size:13px;font-weight:500}
+.report-account b span{font-size:11px;color:#819187}
+.report-account p{font-size:12px;color:#6f8275;line-height:1.8}
+.report-account-help{border-top:1px solid #e5ece6;padding-top:9px;margin-top:9px;font-size:11px;color:#6c8273}
+.report-account-help small{font-size:12px;line-height:1.9;color:#6b7e70}
+.report-account-message:empty,.report-error:empty,#report-ready:empty{display:none}
+.report-page .primary,.report-page .secondary{font:500 12px/1.5 var(--ui-font);border-radius:6px;padding:9px 15px;min-height:36px;box-shadow:none}
+.report-page .primary{background:#247e60;color:#fff;border:1px solid #247e60}
+.report-page .secondary{border:1px solid #dce6df;background:#fff;color:#476554}
+.report-page .text-button{font-size:12px;font-weight:500;color:#27765a}
+.report-page .field textarea{min-height:130px;line-height:1.85}
+.report-input-note{font-size:11px;color:#77877c;margin-top:6px}
+.report-submit-row{padding-top:16px;margin-top:12px}
+.report-submit-row>span{font-size:11px;color:#7d8d82}
+.report-note{background:#fff;border:1px solid #e4ebe6;border-radius:12px;padding:20px}
+.report-note-icon{width:28px;height:28px;font-size:15px;border-radius:7px}
+.report-note h2{font-size:14px;font-weight:500;margin:14px 0 8px}
+.report-note h3{font-size:13px;font-weight:500}
+.report-note p{font-size:12px;line-height:1.9;color:#748478}
+.report-note-divider{margin:18px 0}
+.report-local-note p{font-size:11px;color:#829187}
+.report-receipt-foot{font-size:11px;color:#7a8a7e;padding:12px 22px 16px;border-top:1px solid #eef2ef}
+.report-batch{padding:16px 22px 8px}
+.report-page .report-status{font-size:11px}
+.report-item-info b{font-size:13px;font-weight:500}
+.report-item-info small{font-size:11px;color:#718477}
+.report-footer{font-size:11px;color:#829187}
+@media(max-width:850px){.report-layout{grid-template-columns:minmax(0,1fr) 210px;gap:18px}.report-main{padding-left:20px;padding-right:20px}.report-note{padding:16px}}
+@media(max-width:650px){.report-layout{grid-template-columns:1fr}.report-main{padding:24px 16px 10px}.report-heading h1{font-size:23px}.report-page .panel-header{padding:16px}.report-form-panel .panel-body{padding:16px}.report-identity-fields{grid-template-columns:1fr;gap:10px}.report-identity-fields .field{margin:0}.report-person-form .report-muted{margin-top:10px}.report-page .field input,.report-page .field textarea{font-size:16px}.report-account-header>div{min-width:0;flex-basis:100%}.report-batch{padding-left:16px;padding-right:16px}.report-receipt-foot{padding-left:16px;padding-right:16px}.report-receipt-actions{gap:14px}.report-footer{flex-wrap:wrap;gap:12px}.report-page .report-input-note{font-size:11px}}
+
+/* Employee reporting: one aligned form, followed by its local receipts. */
+.report-page .report-main{max-width:1040px;padding:26px 28px 12px}
+.report-page .report-heading{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:20px}
+.report-page .report-heading h1{font-size:25px;margin-bottom:6px}
+.report-page .report-heading p{font-size:12px;line-height:1.8;color:#6e8075}
+.report-page .report-access-badge{font-size:11px;color:#547260;background:#edf4ef;border:1px solid #dfeae2;border-radius:5px;padding:6px 10px;white-space:nowrap}
+.report-page .report-layout{display:block}
+.report-page .report-primary{gap:18px}
+.report-page .report-form-panel .panel-header{padding:15px 24px}
+.report-page .report-form-panel .panel-body{padding:20px 24px}
+.report-page .report-section-heading{display:flex;align-items:center;gap:9px;margin-bottom:13px}
+.report-page .report-section-heading>span{font-size:10px;font-weight:600;font-variant-numeric:tabular-nums;color:#52816a;background:#edf4ef;border:1px solid #e0ebe3;border-radius:4px;padding:2px 5px;line-height:1.5}
+.report-page .report-section-heading h2{margin:0;font-size:13px;font-weight:600;line-height:1.5;color:#345842}
+.report-page .report-section-heading h2 label{font:inherit;margin:0;color:inherit}
+.report-page .report-section-heading>small{font-size:11px;font-weight:400;color:#8a9a90}
+.report-page .report-person-form{padding-bottom:16px;margin-bottom:16px}
+.report-page .report-identity-fields{gap:16px}
+.report-page .report-identity-fields .field{margin-bottom:8px}
+.report-page .report-identity-fields input{width:100%;box-sizing:border-box}
+.report-page .report-identity-note{font-size:11px;margin:0;color:#7a8c80}
+.report-page .report-person-form details{margin-top:5px}
+.report-page .report-person-form details .field{max-width:400px}
+.report-page .report-account{padding:0 0 16px;border:0;border-bottom:1px solid #e9eeea;border-radius:0;background:transparent;margin-bottom:18px}
+.report-page .report-account-header{gap:18px;align-items:center}
+.report-page .report-account-header>div{min-width:0;flex:1}
+.report-page .report-account-header .report-section-heading{margin-bottom:5px}
+.report-page .report-account-header p{font-size:11px;margin:0;line-height:1.8;color:#75887c}
+.report-page .report-account-header .secondary{flex-shrink:0}
+.report-page #report-account-count{display:inline-block;margin:9px 12px 0 0;font-size:11px;color:#607d6b}
+.report-page .report-account-help{display:inline-block;margin:0;padding:0;border:0;vertical-align:baseline;font-size:11px}
+.report-page .report-account-help[open]{display:block;margin-top:10px;padding:10px 12px;background:#f7faf7;border:1px solid #e6eee8;border-radius:6px}
+.report-page .report-account-help small{font-size:11px;margin-top:7px;line-height:1.85}
+.report-page .report-account-list:empty,.report-page #report-account-message:empty{display:none}
+.report-page .report-account-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.report-page .report-verified-row{align-items:flex-start}
+.report-page .report-verified-row b{font-size:12px}
+.report-page .report-verified-row small{font-size:11px}
+.report-page .report-links-field{margin-bottom:0}
+.report-page .report-links-field .report-section-heading{margin-bottom:10px}
+.report-page .report-links-field textarea{width:100%;box-sizing:border-box;min-height:116px;resize:vertical;background:#fcfdfc}
+.report-page .report-input-note{font-size:11px;margin-top:5px}
+.report-page .report-error:empty{display:none}
+.report-page .report-error:not(:empty){padding:9px 12px;border:1px solid #f0dcd7;border-radius:5px;background:#fff8f6;margin:12px 0 0}
+.report-page .report-submit-row{padding-top:14px;margin-top:14px;align-items:center}
+.report-page .report-submit-hints{min-width:0}
+.report-page .report-submit-hints p{font-size:11px;line-height:1.8;color:#7d8e82;margin:0}
+.report-page #report-ready{color:#54725e}
+.report-page #report-submit{min-width:126px;flex-shrink:0}
+.report-page .report-receipts .panel-header{padding:16px 24px}
+.report-page .report-receipt-actions{gap:16px}
+.report-page .report-receipt-actions button{font-size:11px}
+.report-page .report-receipt-notice{font-size:12px;line-height:1.8;color:#657b6d;border:1px solid #e2eae4;background:#f5f8f5;border-radius:6px;padding:10px 12px;margin:14px 24px 0}
+.report-page .report-empty{padding:20px 24px!important;margin:0;font-size:12px;color:#7a8c80}
+.report-page .report-receipt-foot{padding:12px 24px;font-size:11px;line-height:1.8}
+.report-page .report-footer{max-width:1040px;padding:16px 28px 26px;box-sizing:border-box;font-size:10px}
+@media(max-width:650px){
+  .report-page .report-main{padding:22px 16px 10px}
+  .report-page .report-heading{display:block;margin-bottom:16px}
+  .report-page .report-heading h1{font-size:22px}
+  .report-page .report-access-badge{display:inline-block;margin-top:10px;padding:4px 8px}
+  .report-page .report-form-panel .panel-header,.report-page .report-receipts .panel-header{padding:14px 16px}
+  .report-page .report-form-panel .panel-body{padding:16px}
+  .report-page .report-step{font-size:10px}
+  .report-page .report-identity-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
+  .report-page .report-identity-fields .field:nth-last-child(-n+2){grid-column:auto}
+  .report-page .report-identity-fields .field:last-child{grid-column:1/-1}
+  .report-page .report-identity-fields .field{margin:0}
+  .report-page .report-identity-note{margin-top:8px}
+  .report-page .report-account-header{display:flex;flex-wrap:wrap;gap:10px}
+  .report-page .report-account-header>div{flex-basis:100%}
+  .report-page .report-account-list{grid-template-columns:1fr}
+  .report-page .report-submit-row{align-items:stretch;flex-direction:column;gap:12px}
+  .report-page #report-submit{width:100%;justify-content:center}
+  .report-page .report-receipt-notice{margin:12px 16px 0}
+  .report-page .report-empty{padding:18px 16px!important}
+  .report-page .report-receipt-foot{padding:12px 16px}
+  .report-page .report-footer{padding:12px 16px 22px}
+}

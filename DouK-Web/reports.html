@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eef6f1">
+  <title>DouK · 作品报送</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/reports.css">
+  <script src="/reports.js" defer></script>
+</head>
+<body class="report-page">
+  <header class="report-topbar">
+    <a class="report-brand" href="/report"><span class="report-logo">d↙</span><strong>DouK<span>.</span></strong><small>作品报送</small></a>
+    <a class="report-admin-link" href="/admin">管理入口 ↗</a>
+  </header>
+  <main class="report-main">
+    <div class="report-heading"><div><h1>作品报送</h1><p>填好信息，粘贴链接，提交后在下方查看处理结果。</p></div><span class="report-access-badge">无需注册 · 无需网站登录</span></div>
+    <div class="report-layout">
+      <div class="report-primary">
+      <section class="panel report-form-panel">
+        <div class="panel-header"><span class="panel-title">提交作品</span><span class="report-step">支持多个链接一起报送</span></div>
+        <form class="panel-body" id="report-form">
+          <div id="report-manual" class="report-person-form"><div class="report-section-heading"><span>01</span><h2>报送人信息</h2><small>请填写本人信息</small></div>
+            <div class="report-identity-fields">
+              <div class="field"><label for="report-dept-name">部门 *</label><input id="report-dept-name" maxlength="40" required placeholder="选择或填写部门" list="report-dept-options"><datalist id="report-dept-options"></datalist></div>
+              <div class="field"><label for="report-group-name">小组 *</label><input id="report-group-name" maxlength="40" required placeholder="选择或填写小组" list="report-group-options"><datalist id="report-group-options"></datalist></div>
+              <div class="field"><label for="report-name">姓名 *</label><input id="report-name" maxlength="40" required autocomplete="name" placeholder="填写本人姓名" list="report-name-options"><datalist id="report-name-options"></datalist></div>
+            </div>
+            <p class="report-muted report-identity-note">首次填写会自动建档，请保持姓名、部门与小组一致。</p>
+            <details><summary>同名人员填写工号（选填）</summary><div class="field"><label for="report-employee-code">工号</label><input id="report-employee-code" maxlength="40" placeholder="同部门、小组有同名人员时填写，由管理员确认工号"></div></details>
+          </div>
+          <section class="report-account" aria-label="抖音账号核验">
+            <div class="report-account-header"><div><div class="report-section-heading"><span>02</span><h2>抖音账号核验 *</h2><small>必填</small></div><p>至少核验一个账号后才能报送；支持多个账号，作者匹配任一有效核验账号时自动通过，不匹配时交管理员核实。</p></div><button class="secondary" id="report-login-start" type="button">添加核验账号</button></div>
+            <p id="report-account-count" class="report-muted">尚未添加</p><div id="report-account-list" class="report-account-list"></div><p id="report-account-message" class="report-muted" role="status"></p>
+            <div id="report-login-panel" hidden><p id="report-login-status" class="report-muted" aria-live="polite"></p><img id="report-login-qr" alt="抖音官方扫码登录窗口" hidden><p id="report-login-validity" class="report-muted" hidden></p><a id="report-login-home" target="_blank" rel="noreferrer" hidden>查看已核验账号主页 ↗</a><button class="text-button" id="report-login-cancel" type="button">取消本次扫码</button></div>
+            <details class="report-account-help"><summary>核验有效期与使用说明</summary><small>逐个扫码添加本人管理的账号，报送时作品作者匹配任意一个有效核验账号即可自动通过；全部不匹配则待管理员核实；未核验或全部过期时不能提交。管理员明确停用的账号不会自动放行。核验使用独立窗口，不读取日常浏览器登录；每个账号有效期 7 天，刷新、关闭重开可复用。共用浏览器的人共享此列表，换人前请移除原有核验。更换设备、网址或清除网站数据后需重新核验。账号一致不能证明视频原创。</small></details>
+          </section>
+          <div class="field report-links-field"><div class="report-section-heading"><span>03</span><h2><label for="report-links">抖音作品链接</label></h2><small>必填</small></div><textarea id="report-links" name="links" maxlength="16000" rows="4" required placeholder="粘贴抖音作品链接或完整分享文案&#10;多个作品请分行填写，一次最多 20 个。"></textarea><div class="report-input-note"><span>支持短链接、完整链接和分享文案</span><span id="report-link-count">等待粘贴</span></div></div>
+          <p class="report-error" id="report-error" role="alert"></p>
+          <div class="report-submit-row"><div class="report-submit-hints"><p class="report-muted" id="report-ready" aria-live="polite"></p><p id="report-rule" class="report-muted"></p></div><button class="primary" id="report-submit" type="submit" disabled>提交报送 <span aria-hidden="true">↗</span></button></div>
+        </form>
+      </section>
+    <section class="panel report-receipts" id="report-receipts-section"><div class="panel-header"><span class="panel-title">本浏览器的报送回执</span><div class="report-receipt-actions"><button type="button" class="text-button" id="report-refresh">刷新结果</button><button type="button" class="text-button" id="report-clear-local">清除本机回执</button></div></div><p id="report-receipt-notice" class="report-receipt-notice" role="status" hidden></p><div id="report-receipts" aria-live="polite"></div><p class="report-receipt-foot">显示本浏览器最近 5 次报送；其他电脑或浏览器不会自动同步。共用浏览器可见本机回执，清除本机回执不影响管理员台账。</p></section>
+      </div>
+
+    </div>
+
+  </main>
+  <footer class="report-footer"><span><b>d.</b> DouK · 让工作记录更简单</span><a href="/help/usage.html" target="_blank" rel="noreferrer">操作说明 ↗</a><span>无需员工密码 · 数据保存在部门服务器</span></footer>
+</body>
+</html>
