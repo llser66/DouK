@@ -1,14 +1,20 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script>if(location.protocol!=="file:"&&location.pathname==="/help"){const b=document.createElement("base");b.href="/help/";document.head.appendChild(b)}</script><title>DouK · 版本验证</title><style>*{box-sizing:border-box}body{margin:0;background:#f5f8f6;color:#273d36;font:16px/1.8 "Microsoft YaHei",sans-serif}header{background:#fff;border-bottom:1px solid #dce8e1;padding:20px 6vw}header b{font-size:26px;color:#19876b}nav{display:flex;gap:20px;flex-wrap:wrap}a{color:#16795e}main{max-width:1040px;margin:32px auto;background:white;padding:36px 48px;border:1px solid #e1ebe5;border-radius:16px}h1{font-size:30px}h2{margin-top:42px;padding-top:12px;border-top:1px solid #e3ece6;font-size:23px}h3{margin-top:28px}pre{background:#edf4ef;border-radius:10px;padding:18px;overflow:auto;white-space:pre-wrap;word-break:break-word}code{font:14px/1.7 Consolas,monospace}li{margin:9px 0}p{overflow-wrap:anywhere}.meta{color:#6d8176;font-size:13px}footer{max-width:1040px;margin:24px auto;color:#6d8176;text-align:center}@media(max-width:650px){main{margin:12px;padding:22px}h1{font-size:25px}}@media print{body{background:white}header{display:none}main{border:0;margin:0;padding:0;max-width:none}h2{break-after:avoid}pre{break-inside:avoid}a{color:inherit}}</style></head><body><header><b>DouK.</b><p class="meta">2026.10.31 · 每日报送目标与强制账号核验版 · 可离线阅读</p><nav><a href="index.html">交付文档</a><a href="usage.html">操作说明</a><a href="developer.html">开发与部署</a><a href="verification.html">版本验证</a></nav></header><main><h1>版本验证记录</h1>
-<p>版本：2026.10.31 · 每日报送目标与强制账号核验版。记录截至本次文档整理；不以早期巡检版本的验证结果作为当前功能说明。</p>
+<p>版本：2026.11.02 · 报送进度与回执体验优化版。记录截至本次修改；不以早期巡检版本的验证结果作为当前功能说明。</p>
 <h2>1. 当前交付范围</h2>
 <p>管理端八个主要页面；系统设置四项：报送规则、采集连接、操作日志、访问与备份。员工免网站账号登录，但抖音账号核验必填。报送核查采用每页 30 条的紧凑列表、详情弹窗和当前页选择删除。</p>
 <p>自动巡检、历史补查与老板端采集任务入口已移除。后台详情识别、作品刷新仍存在；保留历史巡检代码或相关测试不表示产品恢复巡检。有效完成数按作品发布日期、责任人和作品 ID 去重计算，不按上传日期凑数。</p>
 <h2>2. 最近完整回归证据</h2>
-<p>2026-10-31，完整自动化套件 240 项通过，耗时 60.220 秒。日志末尾为 Ran 240 tests / OK。该结果来自账号核验必填修改后的代码；本次文档整理没有重跑整套业务测试，也没有据此声称真实平台全面验收通过。</p>
-<p>证据文件：维护者本地留存（未公开）。</p>
+<p>2026-11-02，GitHub 同步版本完整自动化套件 251 项通过，耗时 72.624 秒。日志末尾为 Ran 251 tests / OK。本次验证使用临时库和模拟平台，不代表真实平台全面验收通过。此前界面优化版本 248 项通过。</p>
+<p>证据文件：E:\DouK\Backups\github-sync-handoff-20261102-095125\full-tests.log。该次套件在用于发布的 Git 工作目录运行。</p>
 <p>覆盖范围包括管理员认证和初始账号、公开报送权限、必填核验、多账号匹配及到期、回执、重复报送、归属审核、删除与停用、删除后重报、每日目标、时间边界、统计导出、日志、SQLite 备份及工具隔离。</p>
 <p>并发用例为 80 名员工、20 个线程的报送接收与数据库一致性检查，使用测试核验凭据和模拟平台；不代表 80 人同时扫码或同时真实抖音采集。</p>
 <h2>3. 近期已验证的修改</h2>
+<ul>
+<li>进度默认包含所有未完成员工（无待处理及有待处理），统计人数和导出一致；已驳回不继续算待处理。</li>
+<li>自动核验通过与人工确认通过分别显示；人工通过仍保留作者未匹配事实，重试后自动通过不会误标为人工通过。</li>
+<li>员工待核实/失败回执低频更新，回到页面重新获取终态，完成后停止定时更新；未保存备注与光标保留。</li>
+<li>进度汇总压缩为一行，常用筛选直接显示，小组/员工及统计说明折叠，既有目标、导出和免报操作保留。</li>
+</ul>
 <ul>
 <li>员工回执缓存中的空项、非数组明细及无效日期不会再阻断页面初始化；保留有效凭据并重新向服务器读取。</li>
 <li>发布时间在查询时刻之后的作品不提前计入今日有效完成。</li>
@@ -31,19 +37,25 @@
 <p>本机正式服务此前只做读取和必要认证检查：/report、/admin 返回 200；无核验的提交返回 400；管理员登录成功后退出。未用伪造平台身份向正式库提交业务数据。</p>
 <p>本地证据目录：</p>
 <ul>
-<li>维护者本地留存（未公开）：隔离业务流、导出及页面检查。</li>
-<li>维护者本地留存（未公开）：人员候选搜索。</li>
-<li>维护者本地留存（未公开）：四个设置页签。</li>
-<li>维护者本地留存（未公开）：多报送分页及紧凑表格。</li>
-<li>维护者本地留存（未公开）：账号核验必填状态。</li>
+<li>E:\DouK\Backups\website-bug-audit-20261031-145123：隔离业务流、导出及页面检查。</li>
+<li>E:\DouK\Backups\progress-name-suggestions-20261031-151810\name-options.png：人员候选搜索。</li>
+<li>E:\DouK\Backups\historical-tasks-collapse-20261031-155726\settings-without-tasks.png：四个设置页签。</li>
+<li>E:\DouK\Backups\compact-report-review-20261031-161919\multiple-reports.png：多报送分页及紧凑表格。</li>
+<li>E:\DouK\Backups\required-report-identity-20261031-162300\required-verification.png：账号核验必填状态。</li>
 </ul>
 <p>这些证据留在开发电脑的本地备份中，不包含在纯文档包里；接收方可按开发文档重跑测试。</p>
-<h2>5. 本次文档同步范围</h2>
+<p>2026-11-02 补充：在 8878 临时库构造完成、有待处理、从未报送、已驳回四类人员，确认默认未完成名单和子集跳转；通过员工页的模拟核验提交作者不匹配作品，再在管理员页确认代报。回执在约 30 秒更新后显示“人工确认通过”，手动刷新后未保存备注仍在。正式服务 8877 重启并登录，确认当前每日要求仍为原来的配置，进度页加载正常，未写入测试员工或测试作品。员工页 390px 断点未出现页面横向溢出。截图：本次备份目录中的 receipt-preview.png、live-progress-after.png。</p>
+<h2>5. 上次文档同步（2026-10-31）</h2>
 <p>重写操作说明、开发与部署、文档首页和本记录；同步 README、网站帮助摘要、生成文档及交付版本说明。清除旧的“可选核验”“开启增量巡检”“五个设置页签”等冲突描述，补充每日目标日期语义、默认账号条件、浏览器私有回执、实际删除与停用、登录时自启动和异地部署限制。</p>
-<p>本次只调整文档和帮助文字，不改变每日要求、业务规则、员工信息、作品或正式数据库。本次 test_delivery 与 test_admin_sections 共 10 项测试通过（1.109 秒）；reporting-admin.js 的 Node 语法检查通过。四份 HTML 生成成功、相对链接目标均存在，正式服务四个文档 URL 返回 200 且内容与磁盘一致。浏览器实际打开新版文档并点击操作说明通过。</p>
+<p>该次只调整文档和帮助文字，不改变每日要求、业务规则、员工信息、作品或正式数据库。该次 test_delivery 与 test_admin_sections 共 10 项测试通过（1.109 秒）；reporting-admin.js 的 Node 语法检查通过。四份 HTML 生成成功、相对链接目标均存在，正式服务四个文档 URL 返回 200 且内容与磁盘一致。浏览器实际打开新版文档并点击操作说明通过。</p>
 <p>浏览器检查还发现 /help 无末尾斜杠时，相对导航会指向根目录。现已在生成页面中修正文档基址，同时保留 file 协议离线链接；已从 /help 点击进入 /help/usage.html，再返回 /help/index.html 验证。截图与本次检查结果保存在本次备份根目录。</p>
 <h2>6. 不能由这些结果保证的事项</h2>
 <p>尚未在本次验证中完成真实手机扫码、真实抖音作品端到端读取、不同员工设备和防火墙、异地共用、FFmpeg 直播或干净电脑全新安装。上游平台算法、Cookie、权限和网络变化可能使采集失败；不会将读取失败显示成作品数 0 或承诺永远无故障。</p>
 <p>老板交接时，必须在目标环境试一次真实授权账号核验和作品报送，并核对作者、发布时间、审核、每日完成数、导出与备份。若任一步失败，记录页面错误和日志再处理，不能用离线测试通过代替现场验收。</p>
-<h2>7. 公开快照验证</h2>
-<p>本仓库不发布维护者的私人备份和运行配置。使用者应在升级前自行创建一致性备份，恢复方法见开发与部署文档。公开发布目录已重新执行完整离线套件：240 项通过，耗时 59.696 秒；两个主要页面脚本语法检查通过，四份 HTML 已重建。发布清单检查未包含运行数据目录、数据库、日志或私钥，README 本地链接与四张模拟截图均存在。GitHub 自动化状态以 Actions 的实际结果为准。</p></main><footer>DouK · 操作与开发文档 · 浏览器打印可另存 PDF</footer></body></html>
+<h2>7. 本次备份和回退</h2>
+<p>本次备份根目录：E:\DouK\Backups\progress-usability-20261102-092829。before/project 是修改前版本，after/project 是完成后版本，包含文件清单和校验信息；README.md 说明恢复方式。上次文档整理备份仍保留在 E:\DouK\Backups\current-documentation-20261031-163111。</p>
+<p>备份覆盖网站源码、测试、文档、配置和业务/工具 SQLite 一致快照；未包含虚拟环境、下载媒体、Chrome 资料、上游源码及其运行数据、Windows 设置。本次改动没有数据库结构迁移，回退页面和统计逻辑时仅恢复 changes.json 中变更的非 data 文件；先停止对应网站进程并另存现有文件，保留运行中的业务数据库，再运行 start.ps1 -NoBrowser。数据库单独回退会丢失快照后的新增数据，必须按开发文档离线恢复。</p>
+<h2>8. GitHub 同步与老板启动交付（2026-11-02）</h2>
+<p>新增“打开老板工作台.cmd”“创建老板桌面入口.cmd”、open-workspace.ps1、setup-shortcut.ps1 和“老板交付说明.md”。用 Windows PowerShell 在临时的中文/空格路径运行：验证快捷方式参数、重复创建时原文件及 SHA256 备份、后台标识校验、正确打开 /admin、失败日志与中文提示。测试不更改真实桌面、防火墙和启动项。</p>
+<p>完整套件增加 3 项 Windows 启动交付回归。没有据此声称已在老板新电脑安装完成、已经配置无人登录运行的系统服务，或验证了异地网络。首次仍由维护人员安装环境，并在目标电脑验证 Windows 重启登录、真实抖音核验、员工跨设备访问。</p>
+<p>此次修改前备份：E:\DouK\Backups\github-sync-handoff-20261102-095125\before\project；完成版保留在同目录 after\project。网站备份覆盖源码、文档、配置及 SQLite 一致快照，不含媒体、浏览器资料和上游运行数据。发布仓库的修改前版本另存 repository-before.bundle，保留完整 Git 历史并执行 bundle verify；after bundle 对应发布后的历史。恢复与 SHA256 记录见该备份目录说明。</p></main><footer>DouK · 操作与开发文档 · 浏览器打印可另存 PDF</footer></body></html>

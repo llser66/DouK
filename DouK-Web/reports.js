@@ -5,7 +5,7 @@
   const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const storage={get(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}},set(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch{}}};
   let directory=null,receipts=storage.get('douk.report.receipts',[]),request=null,timer=null,refreshing=false;
-  const noteDrafts={},noteOpen=new Set();let saving=false,loginToken='',loginTimer=null,accountTimer=null;
+  const noteDrafts={},noteOpen=new Set(),noteSaving=new Set();let lastReceiptSync=0,lastReceiptAttempt=0;let saving=false,loginToken='',loginTimer=null,accountTimer=null;
   const loginKey='douk.report.login',rememberedKey='douk.report.verified',accountsKey='douk.report.verified.accounts';
   let loginAction=0,accountRevision=0,accountStates=new Map();
   const validToken=token=>typeof token==='string'&&/^[a-f0-9]{64}$/.test(token);
@@ -21,19 +21,46 @@
   receipts=receipts.filter(r=>r&&typeof r.receipt_token==='string').slice(0,5).map(r=>({...r,items:receiptItems(r.items)}));
   const labels={queued:'等待识别',processing:'正在识别',submitted:'已报送',review:'待管理员核实',failed:'处理失败',duplicate:'已报送过',rejected:'未通过核实',removed:'管理员已移除'};
   const active=r=>(r.items||[]).some(i=>['queued','processing'].includes(i.status));
+  const watchable=r=>(r.items||[]).some(i=>['queued','processing','review','failed'].includes(i.status));
+  const receiptLabel=i=>i.status==='submitted'?({manual:'人工确认通过',automatic:'自动核验通过'}[i.approval_method]||labels.submitted):labels[i.status]||'已接收';
   const date=t=>{const value=new Date(Number(t)*1000);return t&&Number.isFinite(value.getTime())?new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(value):'时间待确认'};
   async function api(path,data){const r=await fetch('/api/reporting/'+path,{method:data?'POST':'GET',headers:{'Content-Type':'application/json'},...(data?{body:JSON.stringify(data)}:{})});let result;try{result=await r.json()}catch{throw Error('服务暂时没有响应，请保留链接后重试。')}if(!r.ok){const error=Error(result.error||'操作失败，请稍后重试。');error.status=r.status;throw error}return result}
   function persist(){storage.set('douk.report.receipts',receipts.map(r=>({receipt_token:r.receipt_token,items:r.items,received_at:r.received_at})));}
   function safeLink(link){try{const url=new URL(link);return ['http:','https:'].includes(url.protocol)&&(url.hostname==='douyin.com'||url.hostname.endsWith('.douyin.com'))?url.href:''}catch{return ''}}
   function renderReceipts(){
+    const focused=document.activeElement,editing=focused?.dataset?.noteInput;
+    const selection=editing?{start:focused.selectionStart,end:focused.selectionEnd,scroll:focused.scrollTop}:null;
     $('report-receipts-section').hidden=false;
-    $('report-receipts').innerHTML=receipts.map(r=>`<div class="report-batch"><div class="report-batch-head"><span>${date(r.received_at||r.items?.[0]?.received_at)} · ${(r.items||[]).length} 个作品</span><span>${active(r)?'后台处理中':'处理结果'}</span></div>${(r.items||[]).map(i=>`<div class="report-item"><div class="report-item-info"><b>${escape(i.description||i.work_id||'抖音作品')}</b><small>${escape([i.author?'作者：'+i.author:'',i.published?'发布时间：'+date(i.published):''].filter(Boolean).join(' · '))}</small><small>${escape(i.message||({queued:'链接已保存，等待后台识别。',processing:'正在读取作品信息。',review:'报送已接收，等待管理员确认归属。',failed:'后台会按规则重试，仍失败请联系管理员。',duplicate:'系统已保留原有报送记录，无需重复提交。'}[i.status]||''))}</small>${safeLink(i.link)?`<a href="${escape(safeLink(i.link))}" target="_blank" rel="noreferrer">${escape(i.link)}</a>`:''}</div><span class="report-status ${['submitted','duplicate'].includes(i.status)?'success':i.status==='review'?'attention':['failed','rejected'].includes(i.status)?'failed':''}">${labels[i.status]||'已接收'}</span><button type="button" class="text-button report-add-note" data-note-open="${escape(i.id)}">${i.reporter_note?'查看 / 修改备注':'补充备注'}</button></div><div class="report-note-editor" ${noteOpen.has(i.id)?'':'hidden'} data-note-editor="${escape(i.id)}"><label for="note-${escape(i.id)}">给管理员的备注（最多 1000 字）</label><textarea id="note-${escape(i.id)}" data-note-input="${escape(i.id)}" maxlength="1000" rows="3" placeholder="例如：代同事报送、账号更名或本次发布的特殊情况">${escape(noteDrafts[i.id]??i.reporter_note??'')}</textarea><button type="button" class="secondary" data-note-save="${escape(i.id)}">保存备注</button><span role="status" data-note-message="${escape(i.id)}"></span></div>`).join('')}</div>`).join('')||'<p class="report-empty" >本浏览器还没有保存报送回执，提交后会显示在这里。</p>';
+    $('report-receipts').innerHTML=receipts.map(r=>`<div class="report-batch"><div class="report-batch-head"><span>${date(r.received_at||r.items?.[0]?.received_at)} · ${(r.items||[]).length} 个作品</span><span>${active(r)?'后台处理中':'处理结果'}</span></div>${(r.items||[]).map(i=>`<div class="report-item"><div class="report-item-info"><b>${escape(i.description||i.work_id||'抖音作品')}</b><small>${escape([i.author?'作者：'+i.author:'',i.published?'发布时间：'+date(i.published):''].filter(Boolean).join(' · '))}</small><small>${escape(i.message||({queued:'链接已保存，等待后台识别。',processing:'正在读取作品信息。',review:'报送已接收，等待管理员确认归属。',failed:'后台会按规则重试，仍失败请联系管理员。',duplicate:'系统已保留原有报送记录，无需重复提交。'}[i.status]||''))}</small>${safeLink(i.link)?`<a href="${escape(safeLink(i.link))}" target="_blank" rel="noreferrer">${escape(i.link)}</a>`:''}</div><span class="report-status ${['submitted','duplicate'].includes(i.status)?'success':i.status==='review'?'attention':['failed','rejected'].includes(i.status)?'failed':''}">${receiptLabel(i)}</span><button type="button" class="text-button report-add-note" data-note-open="${escape(i.id)}">${i.reporter_note?'查看 / 修改备注':'补充备注'}</button></div><div class="report-note-editor" ${noteOpen.has(i.id)?'':'hidden'} data-note-editor="${escape(i.id)}"><label for="note-${escape(i.id)}">给管理员的备注（最多 1000 字）</label><textarea id="note-${escape(i.id)}" data-note-input="${escape(i.id)}" maxlength="1000" rows="3" placeholder="例如：代同事报送、账号更名或本次发布的特殊情况">${escape(noteDrafts[i.id]??i.reporter_note??'')}</textarea><button type="button" class="secondary" data-note-save="${escape(i.id)}" ${noteSaving.has(i.id)?'disabled':''}>保存备注</button><span role="status" data-note-message="${escape(i.id)}"></span></div>`).join('')}</div>`).join('')||'<p class="report-empty" >本浏览器还没有保存报送回执，提交后会显示在这里。</p>';
+    if(editing){const restored=$('note-'+editing);if(restored){restored.focus?.({preventScroll:true});restored.setSelectionRange?.(selection.start,selection.end);restored.scrollTop=selection.scroll}}
+    const updated=$('report-receipt-updated');if(updated)updated.textContent=lastReceiptSync?'最近更新 '+new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date(lastReceiptSync)):'尚未更新';
   }
   function receiptNotice(message){const notice=$('report-receipt-notice');notice.textContent=message;notice.hidden=!message}
-  async function refreshReceipts(manual=false){
-    if(refreshing)return;refreshing=true;clearTimeout(timer);if(manual)receiptNotice('');let failed=false;
-    try{let removed=false;for(const receipt of [...receipts]){if(!manual&&!active(receipt))continue;try{const latest=await api('receipt',{receipt_token:receipt.receipt_token});receipt.items=latest.items||[];receipt.received_at=latest.received_at||receipt.received_at}catch(error){if(error.status===404){receipts=receipts.filter(r=>r.receipt_token!==receipt.receipt_token);removed=true}else failed=true}}persist();renderReceipts();if(removed)receiptNotice('已清理后台不存在的历史回执，不影响继续报送。如仍需登记相关作品，确认后可重新报送。');if(manual&&failed)receiptNotice((removed?'已清理失效的历史回执。':'')+'部分回执暂时无法更新，已保留本机记录，请稍后刷新。')}finally{refreshing=false;if(receipts.some(active))timer=setTimeout(()=>refreshReceipts(),failed?15000:4000)}
+  function scheduleReceipts(failed=false){
+    clearTimeout(timer);if(document.visibilityState==='hidden')return;
+    if(receipts.some(watchable))timer=setTimeout(()=>refreshReceipts(),failed?15000:receipts.some(active)?4000:30000);
   }
+  async function refreshReceipts(manual=false){
+    if(refreshing)return;refreshing=true;lastReceiptAttempt=Date.now();clearTimeout(timer);
+    if(manual)receiptNotice('');let failed=false,removed=false,updated=false;
+    try{
+      for(const receipt of [...receipts]){
+        if(!manual&&!watchable(receipt))continue;
+        try{const latest=await api('receipt',{receipt_token:receipt.receipt_token});receipt.items=receiptItems(latest.items);receipt.received_at=latest.received_at||receipt.received_at;updated=true}
+        catch(error){if(error.status===404){receipts=receipts.filter(r=>r.receipt_token!==receipt.receipt_token);removed=true;updated=true}else failed=true}
+      }
+      if(updated&&!failed)lastReceiptSync=Date.now();persist();renderReceipts();
+      if(removed)receiptNotice('已清理后台不存在的历史回执，不影响继续报送。如仍需登记相关作品，确认后可重新报送。');
+      if(failed)receiptNotice((removed?'已清理失效的历史回执。':'')+'部分回执暂时无法更新，已保留本机记录，请稍后刷新。');
+      else if(!removed&&!manual)receiptNotice('');
+    }finally{refreshing=false;scheduleReceipts(failed)}
+  }
+  function resumeReceipts(){
+    if(document.visibilityState==='hidden'){clearTimeout(timer);return}
+    if(receipts.length&&Date.now()-lastReceiptAttempt>1500)refreshReceipts(true);else scheduleReceipts();
+  }
+  window.addEventListener('focus',resumeReceipts);
+  document.addEventListener?.('visibilitychange',resumeReceipts);
   $('report-form').addEventListener('submit',async event=>{
     event.preventDefault();if(!['report-name','report-dept-name','report-group-name'].every(id=>$(id).value.trim())){$('report-error').textContent='请填写部门、小组和姓名，无需网站登录。';return}
     const links=$('report-links').value.trim();if(!links)return;
@@ -43,7 +70,7 @@
     try{const result=await api('submit',{reporter,links,request_id:request.request_id,login_tokens:tokens});if(!result.receipt_token)throw Error('服务未返回回执，请保留链接重试。');receipts=receipts.filter(r=>r.receipt_token!==result.receipt_token);receipts.unshift(result);receipts=receipts.slice(0,5);persist();renderReceipts();$('report-links').value='';request=null;updateCount();$('report-receipts-section').scrollIntoView({behavior:'smooth',block:'start'});refreshReceipts();}catch(error){$('report-error').textContent=error.message}finally{saving=false;updateSubmit();button.innerHTML='提交报送 <span aria-hidden="true">↗</span>'}
   });
   function updateCount(){const text=$('report-links').value;const matches=text.match(/https?:\/\/[^\s<>"，。]+/g)||text.split(/\s+/).filter(v=>/^\d{6,30}$/.test(v));$('report-link-count').textContent=matches.length?`${matches.length} 个链接${matches.length>20?' · 最多 20 个':''}`:'等待粘贴';}
-  $('report-links').addEventListener('input',updateCount);$('report-refresh').onclick=()=>refreshReceipts(true);$('report-clear-local').onclick=()=>{receipts=[];persist();clearTimeout(timer);receiptNotice('');renderReceipts()};
+  $('report-links').addEventListener('input',updateCount);$('report-refresh').onclick=()=>refreshReceipts(true);$('report-clear-local').onclick=()=>{receipts=[];lastReceiptSync=0;persist();clearTimeout(timer);receiptNotice('');renderReceipts()};
   async function init(){renderReceipts();try{directory=await api('directory');directory.departments=directory.departments||[];directory.groups=directory.groups||[];directory.employees=directory.employees||[];$('report-dept-options').innerHTML=directory.departments.map(d=>`<option value="${escape(d.name)}"></option>`).join('');$('report-group-options').innerHTML=directory.groups.map(g=>`<option value="${escape(g.name)}"></option>`).join('');updateSubmit();$('report-rule').textContent=`请在发布后 ${directory.deadline_hours||24} 小时内报送；后台识别和管理员核实不会改变接收时间。`;refreshReceipts(true)}catch(error){updateSubmit();$('report-error').textContent=error.message}}
   function organizationOptions(){if(!directory)return;const dept=directory.departments.find(d=>d.name===$('report-dept-name').value.trim());const groups=directory.groups.filter(g=>!dept||g.department_id===dept.id);$('report-group-options').innerHTML=groups.map(g=>`<option value="${escape(g.name)}"></option>`).join('');const group=groups.find(g=>g.name===$('report-group-name').value.trim());$('report-name-options').innerHTML=directory.employees.filter(e=>group&&e.group_id===group.id).map(e=>`<option value="${escape(e.name)}"></option>`).join('')}
   ['report-name','report-dept-name','report-group-name'].forEach(id=>$(id).oninput=()=>{updateSubmit();organizationOptions()});
@@ -121,7 +148,7 @@
   $('report-receipts').addEventListener('click',async event=>{
     const open=event.target.closest('[data-note-open]');if(open){const id=open.dataset.noteOpen;noteOpen.has(id)?noteOpen.delete(id):noteOpen.add(id);renderReceipts();return}
     const button=event.target.closest('[data-note-save]');if(!button)return;const id=button.dataset.noteSave,receipt=receipts.find(r=>(r.items||[]).some(i=>i.id===id));if(!receipt)return;
-    button.disabled=true;const message=$('report-receipts').querySelector(`[data-note-message="${id}"]`);try{const result=await api('note',{receipt_token:receipt.receipt_token,item_id:id,note:noteDrafts[id]??receipt.items.find(i=>i.id===id).reporter_note??''});receipt.items.find(i=>i.id===id).reporter_note=result.note;delete noteDrafts[id];persist();message.textContent=result.message}catch(error){message.textContent=error.message}finally{button.disabled=false}
+    button.disabled=true;noteSaving.add(id);const showMessage=text=>{const target=$('report-receipts').querySelector(`[data-note-message="${id}"]`);if(target)target.textContent=text};try{const result=await api('note',{receipt_token:receipt.receipt_token,item_id:id,note:noteDrafts[id]??receipt.items.find(i=>i.id===id).reporter_note??''});receipt.items.find(i=>i.id===id).reporter_note=result.note;delete noteDrafts[id];persist();showMessage(result.message)}catch(error){showMessage(error.message)}finally{noteSaving.delete(id);const current=$('report-receipts').querySelector(`[data-note-save="${id}"]`);if(current)current.disabled=false}
   });
   init();
   // Migrate the old one-account credential without revoking it.

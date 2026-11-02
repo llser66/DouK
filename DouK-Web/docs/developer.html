@@ -1,5 +1,5 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script>if(location.protocol!=="file:"&&location.pathname==="/help"){const b=document.createElement("base");b.href="/help/";document.head.appendChild(b)}</script><title>DouK · 开发与部署</title><style>*{box-sizing:border-box}body{margin:0;background:#f5f8f6;color:#273d36;font:16px/1.8 "Microsoft YaHei",sans-serif}header{background:#fff;border-bottom:1px solid #dce8e1;padding:20px 6vw}header b{font-size:26px;color:#19876b}nav{display:flex;gap:20px;flex-wrap:wrap}a{color:#16795e}main{max-width:1040px;margin:32px auto;background:white;padding:36px 48px;border:1px solid #e1ebe5;border-radius:16px}h1{font-size:30px}h2{margin-top:42px;padding-top:12px;border-top:1px solid #e3ece6;font-size:23px}h3{margin-top:28px}pre{background:#edf4ef;border-radius:10px;padding:18px;overflow:auto;white-space:pre-wrap;word-break:break-word}code{font:14px/1.7 Consolas,monospace}li{margin:9px 0}p{overflow-wrap:anywhere}.meta{color:#6d8176;font-size:13px}footer{max-width:1040px;margin:24px auto;color:#6d8176;text-align:center}@media(max-width:650px){main{margin:12px;padding:22px}h1{font-size:25px}}@media print{body{background:white}header{display:none}main{border:0;margin:0;padding:0;max-width:none}h2{break-after:avoid}pre{break-inside:avoid}a{color:inherit}}</style></head><body><header><b>DouK.</b><p class="meta">2026.10.31 · 每日报送目标与强制账号核验版 · 可离线阅读</p><nav><a href="index.html">交付文档</a><a href="usage.html">操作说明</a><a href="developer.html">开发与部署</a><a href="verification.html">版本验证</a></nav></header><main><h1>开发与部署文档</h1>
-<p>版本：2026.10.31 · 每日报送目标与强制账号核验版。本文对应当前运行代码；操作步骤见 <a href="usage.html">操作说明</a>，验证范围见 <a href="verification.html">版本验证记录</a>。</p>
+<p>版本：2026.11.02 · 报送进度与回执体验优化版。本文对应当前运行代码；操作步骤见 <a href="usage.html">操作说明</a>，验证范围见 <a href="verification.html">版本验证记录</a>。</p>
 <h2>1. 产品边界与架构</h2>
 <p>网站用于员工主动报送作品、管理员审核归属和查看每日完成情况。员工免网站账号登录，但必须完成至少一个抖音账号核验。未完成报送不等于没有在抖音发布。自动巡检、历史补查和老板端采集任务页已移除，不承诺自动发现未报送的平台作品。</p>
 <p>前端为原生 HTML/CSS/JavaScript，无需前端编译；业务 HTTP、SQLite、CSV/XLSX 导出主要使用 Python 标准库。TikTokDownloader 作为相邻项目运行，由 enhanced_api.py 适配。运营报送使用上游已有的 /douyin/share 和 /douyin/detail，没有另造平台数据接口，也不依赖其自带 Web UI。</p>
@@ -10,6 +10,8 @@
 </ul>
 <p>上游作者已说明不再维护加密参数算法，原 Web UI 尚未重新开放。平台变化、账号授权或字段缺失会导致失败；扫码核验和填写 Cookie 都不是平台可用性的保证。</p>
 <h2>2. 安装条件与首次启动</h2>
+<p>交接入口：部署人员运行 <code>setup-shortcut.ps1</code>（或“创建老板桌面入口.cmd”），创建当前用户桌面的“DouK 老板工作台”。快捷方式调用 <code>open-workspace.ps1</code>，复用 start.ps1 并检查业务服务标识，再打开 /admin。失败记录 data/launcher-error.log 并显示中文提示；不修改启动任务或防火墙。支持中文/空格路径，重复创建前备份旧 .lnk 并校验 SHA256。移动项目后需重新创建入口、重新配置登录启动。</p>
+<p>源码包不包含解释器、Node.js、Chrome 或现场运行数据，首次需要维护人员安装环境。给老板的逐步交接清单位于根目录“老板交付说明.md”。</p>
 <p>需要 Windows 10/11、Python 3.12+、Node.js 18+；建议使用维护中的版本。员工抖音扫码核验需要服务器安装 Google Chrome；仅独立工具直播录制需要 FFmpeg。首次安装依赖需要联网。</p>
 <ol>
 <li>解压到固定目录，例如 D:\DouK，保持 DouK-Web 与 TikTokDownloader 相邻；不要在 ZIP 内运行，也不要搬用其他电脑的 .venv-api。</li>
@@ -54,6 +56,9 @@
 <p>目标优先级：当日免报、个人当日要求、个人常规要求、统一要求。规则按生效日和版本选择；数量为 0 表示免报，继承与 0 不同，允许范围 0–1000。个人常规数量覆盖统一数量，执行日和截止时间仍按适用规则；单日安排可覆盖休息日。不要在代码或文档写死现场每天必须几条。</p>
 <p>有效完成按作品的北京时间发布日期、已确认责任人和作品 ID 去重。作品必须已识别、有效归属审核通过且未删除；发布时间晚于查询时刻的不计入。报送时间用于判断是否迟交，截止 18:00 包含 18:00:59。重复报送不重复计数，补交昨天发布的作品属于昨天。</p>
 <p>待核实不计有效完成；同一作品待处理去重。发布时间未知时待处理可暂按接收日归类。早于首个新规则生效日的旧日期使用兼容报送计数，quota_mode=false，不能与目标模式混读。</p>
+<p>进度接口默认 status=incomplete，聚合 missing（不足且无待处理）和 attention（不足且有待处理）；保留原子筛选兼容旧调用。counts.incomplete 等于两者之和；counts.attention 是其中子集。名单和 Excel 导出共用过滤逻辑。rejected 不计 pending_count/unlocated_count，也不会使历史兼容模式误判为已报送。</p>
+<p>报送列表与公开回执返回 approval_method：automatic、manual、recorded 或空串。它与 account_match 分开：人工接受代报不会把 mismatch 改成 match。来源取已保存的 reviewer_id 和核验快照，历史无依据时保留 recorded。重试后自动归档会清理旧的重试审核人标记，避免误显示人工通过；操作日志保留。公开回执不返回 reviewer_id 或登录身份快照。</p>
+<p>员工控制器对 queued/processing 使用约 4 秒轮询，对 review/failed 使用约 30 秒轮询；隐藏页面暂停，恢复焦点或可见时重新拉取（1.5 秒去重），终态不持续轮询。刷新保留备注草稿、文本选区与正在保存状态，显示最近成功读取时间。平台请求行为未因此增加。</p>
 <p>人员范围是当前启用且在查询日结束前建档的名册；历史查询使用当前组织和启用状态，并非完整的人事历史快照。只有先把应报人员加入名册，才能发现从未报送的人。</p>
 <p>作品列表按发布日期筛选；报送核查按接收时间筛选。目标模式的“查看作品”查看责任人当天发布作品，“查看报送”查看填报人记录，不强行把报送日期限制成发布日。导出包含全部筛选结果，不限当前页。</p>
 <h2>7. 报送接口与管理接口</h2>

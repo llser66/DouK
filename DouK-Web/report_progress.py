@@ -52,11 +52,12 @@ class ReportProgress:
             daily = [r for r in records if start <= r['received_at'] < end]
             row['received_count'] = len(daily)
             row['accepted_count'] = sum(r['status']=='submitted' for r in daily)
-            row['attention_count'] = sum(r['status'] not in {'submitted','duplicate'} for r in daily)
+            row['attention_count'] = sum(r['status'] in {'queued','processing','review','failed'} for r in daily)
             row['last_received'] = max((r['received_at'] for r in records), default=None)
             row['excuse'] = excuses.get(row['id'], {}).get('reason','')
-            row['status'] = ('excused' if row['excuse'] else 'missing' if not daily
-                             else 'attention' if row['attention_count'] else 'reported')
+            row['status'] = ('excused' if row['excuse'] else 'attention' if row['attention_count']
+                             else 'reported' if any(r['status'] in {'submitted','duplicate'} for r in daily)
+                             else 'missing')
         from daily_report_targets import DailyReportTargets
         result = {'date': day, 'items': rows}
         DailyReportTargets(self.ops).progress(result)
@@ -70,10 +71,13 @@ class ReportProgress:
         counts = {state: sum(r['status']==state for r in rows)
                   for state in ('missing','reported','attention','excused')}
         counts['total'] = len(rows)
-        status = filters.get('status', 'missing')
-        if status not in {'','all','missing','reported','attention','excused'}:
+        counts['incomplete'] = counts['missing'] + counts['attention']
+        status = filters.get('status', 'incomplete')
+        if status not in {'','all','incomplete','missing','reported','attention','excused'}:
             raise ValueError('报送状态无效')
-        if status not in {'','all'}:
+        if status == 'incomplete':
+            rows = [r for r in rows if r['status'] in {'missing','attention'}]
+        elif status not in {'','all'}:
             rows = [r for r in rows if r['status']==status]
         rows.sort(key=lambda r: (r['department_name'],r['group_name'],r['name'],r['id']))
         page = min(max(1,int(filters.get('page',1))), max(1,(len(rows)+29)//30))

@@ -312,3 +312,32 @@
 .report-detail-facts{display:grid;grid-template-columns:94px minmax(0,1fr);gap:9px 16px;margin:18px 0}
 .report-detail-facts dt{color:#728178}.report-detail-facts dd{margin:0;overflow-wrap:anywhere}
 .report-detail-note{border-top:1px solid #e8eee9;padding-top:12px;margin-top:12px}
+
+/* Daily progress: compact overview, primary filters, then employee rows. */
+.ops-workspace .report-progress-strip-heading{display:flex;justify-content:space-between;gap:12px;padding:12px 18px 0;font-size:12px;color:#63776b;line-height:1.6}
+.ops-workspace .report-progress-strip-heading b{font-weight:500;color:#395745}
+.ops-workspace .report-progress-cards{padding:7px 4px 9px}
+.ops-workspace .report-progress-cards button{padding:6px 14px;font-size:12px;gap:8px;min-height:36px}
+.ops-workspace .report-progress-cards button[aria-pressed=true]{background:#eff6f1;border-radius:4px}
+.ops-workspace .report-progress-cards strong{font-size:18px;font-weight:600}
+.ops-workspace #ops-filter.report-progress-filter{display:grid;grid-template-columns:155px minmax(130px,1fr) minmax(140px,1fr) minmax(155px,1fr) auto;gap:12px;align-items:end;padding:16px 18px 10px}
+.ops-workspace #ops-filter.report-progress-filter .field{margin:0;min-width:0}
+.ops-workspace #ops-filter.report-progress-filter .field label{font-size:12px;margin-bottom:6px}
+.ops-workspace #ops-filter.report-progress-filter .field :is(input,select){height:51px;padding:23px 12px 7px;font-size:13px;box-sizing:border-box}
+.ops-workspace #ops-filter.report-progress-filter .ops-filter-actions{display:flex;gap:12px;grid-column:auto;padding:0;margin:0;align-items:center;height:36px}
+.ops-workspace #ops-filter.report-progress-filter .primary{height:36px;padding:7px 17px}
+.ops-workspace .report-progress-more{grid-column:1/-1;font-size:12px;border-top:1px solid #edf2ee;padding-top:8px;color:#567460}
+.ops-workspace .report-progress-more summary{cursor:pointer;width:fit-content;line-height:1.7}
+.ops-workspace .report-progress-more summary span{margin-left:10px;color:#7b8980}
+.ops-workspace .report-progress-more-fields{display:grid;grid-template-columns:repeat(2,minmax(0,230px));gap:14px;padding:12px 0 4px}
+.ops-workspace .report-progress-results>.panel-header{padding:13px 18px}
+.ops-workspace .report-progress-table th{padding-top:11px;padding-bottom:11px}
+.ops-workspace .report-progress-table td{padding-top:13px;padding-bottom:13px;font-size:13px}
+.ops-workspace .report-progress-table td small{font-size:12px;line-height:1.65;margin-top:4px;color:#708074}
+.ops-workspace .report-progress-table .report-admin-actions{max-width:150px;gap:5px 12px}
+.ops-workspace .report-progress-explanation{margin:0;padding:12px 18px;border-top:1px solid #edf1ee}
+.ops-workspace .report-progress-explanation p{font-size:12px;line-height:1.8;margin:8px 0}
+.ops-workspace .report-progress-explanation .text-button{font-size:12px;margin-left:10px}
+.overview-person-metric.incomplete.has-count i{background:#bc9153}
+@media(max-width:1120px){.ops-workspace #ops-filter.report-progress-filter{grid-template-columns:repeat(2,minmax(0,1fr))}.ops-workspace #ops-filter.report-progress-filter .ops-filter-actions{grid-column:1/-1;justify-content:flex-start}}
+@media(max-width:700px){.ops-workspace .report-progress-strip-heading{flex-wrap:wrap;gap:2px;padding:10px 14px 0}.ops-workspace .report-progress-cards button{border:0;padding:7px 10px}.ops-workspace #ops-filter.report-progress-filter{padding:14px;gap:10px}.ops-workspace #ops-filter.report-progress-filter .field :is(input,select){font-size:16px;height:40px}.ops-workspace .report-progress-more-fields{grid-template-columns:1fr}.ops-workspace .report-progress-results>.panel-header{align-items:flex-start;gap:10px}}

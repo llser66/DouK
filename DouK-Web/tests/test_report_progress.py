@@ -57,6 +57,16 @@ class ReportProgressTests(unittest.TestCase):
         # A report detail deep link uses the same date boundaries.
         self.assertEqual(self.ops.reporting_list(self.admin,{'date':day,'employee':self.employee_id})['total'],2)
 
+    def test_legacy_incomplete_includes_review_and_rejected_alone_is_not_complete(self):
+        _,start,_=self.day()
+        self.receipt('review',self.employee_id,start,'review')
+        self.receipt('rejected',self.other_id,start,'rejected')
+        result=self.result()
+        self.assertEqual(result['total'],2)
+        self.assertEqual(result['counts']['incomplete'],2)
+        self.assertEqual(result['counts']['attention'],1)
+        self.assertEqual(next(r for r in result['items'] if r['id']==self.other_id)['status'],'missing')
+
     def test_deleted_receipts_excuses_and_cancel_excuse(self):
         day,start,end=self.day()
         self.receipt('deleted',self.employee_id,start)

@@ -525,8 +525,10 @@ class ReportingMixin:
         batch = self.query('SELECT id FROM ops_report_batches WHERE token_hash=?', (hashlib.sha256(token.encode()).hexdigest(),), one=True)
         if not batch:
             raise AccessError('回执不存在或访问凭据无效', 404)
-        rows = self.query('''SELECT r.id,r.status,r.link,r.received_at,r.work_id,r.payload,r.message,
+        rows = self.query('''SELECT r.id,r.status,r.link,r.received_at,r.work_id,r.payload,r.message,r.reviewer_id,
+          c.login_identity,
           COALESCE(x.deleted_at,0) deleted_at FROM ops_report_items r LEFT JOIN ops_report_deletions x ON x.item_id=r.id
+          LEFT JOIN ops_report_claims c ON c.batch_id=r.batch_id
           WHERE r.batch_id=? ORDER BY r.rowid''', (batch['id'],))
         for row in rows:
             if row['deleted_at']:
@@ -536,6 +538,10 @@ class ReportingMixin:
             row['description'] = payload.get('description', '')
             row['author'] = payload.get('nickname', '')
             row['published'] = payload.get('published')
+            identities = self._report_identities(json.loads(row.pop('login_identity') or '{}'))
+            matched = any(i['sec_uid'] == payload.get('sec_uid') for i in identities)
+            row['approval_method'] = ('manual' if row.pop('reviewer_id') else 'automatic' if matched else 'recorded') if row['status'] == 'submitted' else ''
+            row.pop('reviewer_id', None)
             note=self.query('SELECT note,updated FROM ops_report_notes WHERE item_id=?',(row['id'],),one=True)
             row['reporter_note'] = note['note'] if note else ''
         return {'receipt_token': token, 'items': rows}
@@ -610,6 +616,8 @@ class ReportingMixin:
                               (binding_id,work['sec_uid'],work.get('uid',''),work.get('nickname') or '抖音账号','https://www.douyin.com/user/'+work['sec_uid'],expected_owner,report['received_at']))
                             binding=db.execute('SELECT * FROM ops_bindings WHERE id=?',(binding_id,)).fetchone()
                         self._file_report(db, report, work, binding, expected_owner)
+                        # A prior retry request is not a manual approval of this result.
+                        db.execute("UPDATE ops_report_items SET reviewer_id='',review_note='' WHERE id=?", (report['id'],))
                 self.audit('INFO', 'task', '免登录作品报送已解析', task_id=report['id'])
             except Exception:
                 # Never expose upstream cookies, headers, URLs or tracebacks in public receipts.
@@ -658,6 +666,7 @@ class ReportingMixin:
             row['login_accounts'] = identities
             row['login_account'] = matching or (identities[0] if len(identities)==1 else {})
             row['account_match'] = ('match' if matching else 'mismatch') if identities and work.get('sec_uid') else 'unverified'
+            row['approval_method'] = ('manual' if row['reviewer_id'] else 'automatic' if matching else 'recorded') if row['status'] == 'submitted' else ''
             row.pop('batch_id', None)
         if filters.get('search'):
             search = str(filters['search']).casefold()

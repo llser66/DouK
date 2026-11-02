@@ -131,7 +131,7 @@ class DailyReportTargets:
         accepted_ids = {w['id'] for w in accepted}
         pending = self.ops.query('''SELECT r.id,r.employee_id,r.work_id,r.payload,r.received_at,r.status
             FROM ops_report_items r LEFT JOIN ops_report_deletions x ON x.item_id=r.id
-            WHERE x.item_id IS NULL AND r.status IN ('queued','processing','review','failed','rejected')''')
+            WHERE x.item_id IS NULL AND r.status IN ('queued','processing','review','failed')''')
         by_employee = {}
         for row in accepted:
             by_employee.setdefault(row['owner_id'], []).append(row)

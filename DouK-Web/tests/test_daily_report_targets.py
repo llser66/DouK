@@ -94,6 +94,26 @@ class DailyTargetTests(unittest.TestCase):
         row=next(r for r in self.result()['items'] if r['id']==self.employee_id)
         self.assertEqual(row['completed_count'],1)
 
+    def test_incomplete_filter_includes_pending_and_export_and_rejected_is_not_pending(self):
+        day,start,end,_=self.dates()
+        self.default(1)
+        self.pending('review','1234567890171',start+60,start+120)
+        self.pending('rejected','1234567890172',start+60,start+120,'rejected')
+        result=self.ops.get('report-progress',self.admin,{'date':day})
+        self.assertEqual({r['id'] for r in result['items']},{self.employee_id,self.other_id})
+        self.assertEqual((result['counts']['incomplete'],result['counts']['attention'],result['counts']['missing']),(2,1,1))
+        self.assertEqual(next(r for r in result['items'] if r['id']==self.employee_id)['pending_count'],1)
+        only_pending=self.ops.get('report-progress',self.admin,{'date':day,'status':'attention'})
+        self.assertEqual([r['id'] for r in only_pending['items']],[self.employee_id])
+        exported,_=self.ops.get('report-progress/export',self.admin,{'date':day,'status':'incomplete'})
+        with zipfile.ZipFile(io.BytesIO(exported)) as archive:
+            xml=archive.read('xl/worksheets/sheet1.xml').decode()
+        self.assertIn('员工甲',xml)
+        self.assertIn('员工乙',xml)
+        self.ops.execute("UPDATE ops_report_items SET status='rejected'")
+        row=next(r for r in self.result()['items'] if r['id']==self.employee_id)
+        self.assertEqual((row['pending_count'],row['unlocated_count'],row['status']),(0,0,'missing'))
+
     def test_cutoff_uses_original_receipt_and_excuse_overrides_goal(self):
         day,start,end,previous=self.dates()
         self.default(1,cutoff='18:00')

@@ -73,12 +73,33 @@ class ReportIdentityTests(unittest.TestCase):
         self.assertEqual(self.ops.query('SELECT COUNT(*) n FROM ops_submissions',one=True)['n'],0)
 
     def test_matching_identity_uses_stable_id_and_does_not_require_login(self):
-        self.ops.receive_report({'employee_id':self.employee_id,'links':'1234567890123','request_id':'identity-matching-00001'},'test',{'sec_uid':self.binding['sec_uid'],'nickname':'昵称可能改变'})
+        receipt=self.ops.receive_report({'employee_id':self.employee_id,'links':'1234567890123','request_id':'identity-matching-00001'},'test',{'sec_uid':self.binding['sec_uid'],'nickname':'昵称可能改变'})
         self.process()
         row=self.ops.reporting_list(self.admin,{})['items'][0]
         self.assertEqual(row['account_match'],'match')
         self.assertEqual(row['status'],'submitted')
         self.assertEqual(row['login_account']['nickname'],'昵称可能改变')
+        self.assertEqual(row['approval_method'],'automatic')
+        public=self.ops.report_receipt(receipt)['items'][0]
+        self.assertEqual(public['approval_method'],'automatic')
+        self.assertNotIn('reviewer_id',public)
+        self.assertNotIn('login_identity',public)
+
+    def test_manual_approval_preserves_mismatch_and_retry_is_not_manual_approval(self):
+        receipt=self.ops.receive_report({'employee_id':self.employee_id,'links':'1234567890123','request_id':'approval-method-00001'},'test',{'sec_uid':'MS4w-other-account'})
+        self.process()
+        item=self.ops.reporting_list(self.admin,{})['items'][0]
+        self.ops.review_reports({'ids':[item['id']],'action':'approve','note':'已确认代报'},self.admin)
+        item=self.ops.reporting_list(self.admin,{})['items'][0]
+        self.assertEqual((item['status'],item['account_match'],item['approval_method']),('submitted','mismatch','manual'))
+        self.assertEqual(self.ops.report_receipt(receipt)['items'][0]['approval_method'],'manual')
+        second=self.ops.receive_report({'employee_id':self.employee_id,'links':'1234567890124','request_id':'approval-retry-00002'},'test',{'sec_uid':self.binding['sec_uid']})
+        item=second['items'][0]
+        self.ops.execute("UPDATE ops_report_items SET status='failed' WHERE id=?",(item['id'],))
+        self.ops.review_reports({'ids':[item['id']],'action':'retry'},self.admin)
+        self.process(self.raw('1234567890124'))
+        latest=self.ops.report_receipt(second)['items'][0]
+        self.assertEqual((latest['status'],latest['approval_method']),('submitted','automatic'))
 
     def test_login_capability_scope_expiry_no_cookies_and_no_manual_identity_claim(self):
         manager=ReportAccounts(lambda:Path(self.temp.name)/'report-login-profiles')

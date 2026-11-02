@@ -23,7 +23,7 @@ const ctx={document:{addEventListener:(n,f)=>(listeners[n]??=[]).push(f),querySe
   safeOpsUrl:()=>'',api:async path=>{requests.push(path);const route=path.split('?')[0];
     if(route==='/ops/bindings')return bindings;if(route==='/ops/people')return people;
     if(route==='/ops/report-progress')return {date:'2026-10-31',counts:{total:2,missing:1,reported:1,attention:0,excused:0},items:[{id:'a',name:'甲',employee_code:'E1',department_name:'甲部',group_name:'甲组',received_count:0,accepted_count:0,attention_count:0,status:'missing',...(input.quota?{required:3,completed_count:1,remaining:2,pending_count:1,unlocated_count:0,late_count:0,phase:'in_progress',target:{source:'个人要求'}}:{})}],...(input.quota?{quota_mode:true,rule:{cutoff:'18:00'}}:{}),total:1,page:1,page_size:30};if(route==='/ops/summary')return summary;if(route==='/ops/works')return {items:[],total:0,page:1};
-    if(route==='/ops/reporting')return {items:[],total:0,page:1,page_size:30,counts:{review:2,failed:1}};
+    if(route==='/ops/reporting')return {items:input.reports||[],total:(input.reports||[]).length,page:1,page_size:30,counts:{review:2,failed:1}};
     throw Error('Unexpected API '+path)},post:async(path,body)=>{posts.push({path,body});return {message:'ok'}}};
 vm.createContext(ctx);
 for(const name of ['ops-ui.js','ops-flow-ui.js','reporting-admin.js'])vm.runInContext(fs.readFileSync(name,'utf8'),ctx);
@@ -35,7 +35,7 @@ ctx.opsOpen=(page,filters)=>opens.push({page,filters});
   const html=element('#ops-body').innerHTML,queue=element('#report-queue-content').innerHTML;
   if(input.action==='card')for(const fn of listeners.click||[])await fn({target:{closest:()=>({dataset:{opsState:'overdue'},hasAttribute:()=>false})}});
   if(input.action==='report')for(const fn of listeners.click||[])await fn({target:{closest:()=>({dataset:{reportOpenState:'review'},hasAttribute:()=>false})}});
-  if(input.action==='progress')for(const fn of listeners.click||[])await fn({target:{closest:()=>({dataset:{progressStatus:'missing'},hasAttribute:()=>false})}});
+  if(input.action==='progress')for(const fn of listeners.click||[])await fn({target:{closest:()=>({dataset:{progressStatus:'incomplete'},hasAttribute:()=>false})}});
   process.stdout.write(JSON.stringify({html,queue,requests,posts,opens,nav:ctx.opsNavigation()}));
 })().catch(error=>{process.stderr.write(error.stack);process.exitCode=1});
 '''
@@ -57,7 +57,7 @@ class AdminSectionTests(unittest.TestCase):
         self.assertNotIn('巡检状态',page['nav'])
         self.assertIn('每日报送进度',page['nav'])
         self.assertEqual(page['opens'][0]['page'],'unreported')
-        self.assertEqual(page['opens'][0]['filters']['status'],'missing')
+        self.assertEqual(page['opens'][0]['filters']['status'],'incomplete')
 
     def test_statistics_loads_summary_without_work_or_report_tables(self):
         page=self.run_page('statistics',filters={'department':'da'})
@@ -100,6 +100,21 @@ class AdminSectionTests(unittest.TestCase):
         overview=self.run_page('overview',quota=True)
         self.assertIn('已完成',overview['html'])
         self.assertIn('18:00',overview['html'])
+
+    def test_compact_progress_defaults_to_all_incomplete_and_collapses_extra_filters(self):
+        page=self.run_page('unreported',quota=True)
+        self.assertIn('value="incomplete" selected',page['html'])
+        self.assertIn('<details class="report-progress-more" >',page['html'])
+        self.assertIn('其中待处理',page['html'])
+        self.assertLess(page['html'].index('report-progress-table'),page['html'].index('如何计算完成情况'))
+        self.assertIn('导出 Excel',page['html'])
+
+    def test_manual_approval_and_author_comparison_remain_distinct(self):
+        page=self.run_page('audit',reports=[{'id':'manual','status':'submitted','approval_method':'manual','account_match':'mismatch'},
+                                          {'id':'auto','status':'submitted','approval_method':'automatic','account_match':'match'}])
+        self.assertIn('人工确认通过',page['queue'])
+        self.assertIn('作者未匹配 · 已人工确认',page['queue'])
+        self.assertIn('自动核验通过',page['queue'])
 
     def test_report_alert_preserves_organization_but_not_publication_dates(self):
         page=self.run_page('overview',filters={'department':'da','start':'2026-10-01'},action='report')
