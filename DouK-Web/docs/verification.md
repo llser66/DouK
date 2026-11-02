@@ -85,4 +85,6 @@
 
 完整套件增加 3 项 Windows 启动交付回归。没有据此声称已在老板新电脑安装完成、已经配置无人登录运行的系统服务，或验证了异地网络。首次仍由维护人员安装环境，并在目标电脑验证 Windows 重启登录、真实抖音核验、员工跨设备访问。
 
+GitHub Windows 运行器首次执行暴露了系统语言兼容问题：WScript.Shell 保存含中文路径的快捷方式失败。本地中文 Windows 的同一测试通过，因此不能仅凭本机结果判断兼容性。已改用 Windows 原生 Unicode 快捷方式接口 IShellLinkW/IPersistFile，保留中文路径和参数，并由独立的 WScript 读取结果核验。修复后的 3 项本地启动测试通过；CI 在完整套件前单独运行这组测试以尽早发现交付问题。线上最终结果以对应提交的 Actions 记录为准。
+
 此次修改前备份：E:\DouK\Backups\github-sync-handoff-20261102-095125\before\project；完成版保留在同目录 after\project。网站备份覆盖源码、文档、配置及 SQLite 一致快照，不含媒体、浏览器资料和上游运行数据。发布仓库的修改前版本另存 repository-before.bundle，保留完整 Git 历史并执行 bundle verify；after bundle 对应发布后的历史。恢复与 SHA256 记录见该备份目录说明。

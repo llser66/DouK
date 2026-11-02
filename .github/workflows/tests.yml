@@ -21,6 +21,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Windows desktop launchers
+        run: python -m unittest discover -s tests -p 'test_windows_launchers.py' -v
       - name: Offline business and UI regression
         run: python -m unittest discover -s tests -p 'test_*.py' -v
       - name: JavaScript syntax

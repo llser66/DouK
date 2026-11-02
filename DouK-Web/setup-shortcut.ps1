@@ -24,20 +24,68 @@ if (Test-Path -LiteralPath $shortcutPath) {
     @{ original = $shortcutPath; backup = $shortcutBackup; sha256 = (Get-ShortcutDigest $shortcutBackup) } |
         ConvertTo-Json | Set-Content -LiteralPath (Join-Path $shortcutBackupRoot 'manifest.json') -Encoding UTF8
 }
-$shortcutShell = New-Object -ComObject WScript.Shell
-try {
-    $shortcutLink = $shortcutShell.CreateShortcut($shortcutPath)
-    $shortcutLink.TargetPath = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
-    $shortcutLink.Arguments = '-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "' + $shortcutLauncher + '"'
-    $shortcutLink.WorkingDirectory = $PSScriptRoot
-    $shortcutLink.Description = '启动 DouK 后台并打开老板工作台'
-    $shortcutLink.IconLocation = (Join-Path $env:SystemRoot 'System32\shell32.dll') + ',14'
-    $shortcutLink.Save()
-    $shortcutVerify = $shortcutShell.CreateShortcut($shortcutPath)
-    if ($shortcutVerify.Arguments -ne $shortcutLink.Arguments -or $shortcutVerify.WorkingDirectory -ne $PSScriptRoot) { throw 'Shortcut verification failed.' }
-} finally {
-    [Runtime.InteropServices.Marshal]::ReleaseComObject($shortcutShell) | Out-Null
+# WScript.Shell.Save can replace Chinese characters on non-Chinese Windows.
+# IShellLinkW and IPersistFile keep both the file name and target in Unicode.
+if (-not ('DouK.DesktopLink' -as [type])) {
+    Add-Type -TypeDefinition @'
+using System;
+using System.Text;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
+namespace DouK {
+    [ComImport, Guid("00021401-0000-0000-C000-000000000046")]
+    internal class ShellLink { }
+    [ComImport, Guid("000214F9-0000-0000-C000-000000000046"),
+     InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    internal interface IShellLinkW {
+        void GetPath([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder path, int length, IntPtr findData, uint flags);
+        void GetIDList(out IntPtr list);
+        void SetIDList(IntPtr list);
+        void GetDescription([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder text, int length);
+        void SetDescription([MarshalAs(UnmanagedType.LPWStr)] string text);
+        void GetWorkingDirectory([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder path, int length);
+        void SetWorkingDirectory([MarshalAs(UnmanagedType.LPWStr)] string path);
+        void GetArguments([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder text, int length);
+        void SetArguments([MarshalAs(UnmanagedType.LPWStr)] string text);
+        void GetHotkey(out short hotkey);
+        void SetHotkey(short hotkey);
+        void GetShowCmd(out int show);
+        void SetShowCmd(int show);
+        void GetIconLocation([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder path, int length, out int index);
+        void SetIconLocation([MarshalAs(UnmanagedType.LPWStr)] string path, int index);
+        void SetRelativePath([MarshalAs(UnmanagedType.LPWStr)] string path, uint reserved);
+        void Resolve(IntPtr window, uint flags);
+        void SetPath([MarshalAs(UnmanagedType.LPWStr)] string path);
+    }
+    public static class DesktopLink {
+        public static void Save(string file, string target, string arguments, string directory, string description, string icon) {
+            object instance = new ShellLink();
+            try {
+                IShellLinkW link = (IShellLinkW)instance;
+                link.SetPath(target);
+                link.SetArguments(arguments);
+                link.SetWorkingDirectory(directory);
+                link.SetDescription(description);
+                link.SetIconLocation(icon, 14);
+                IPersistFile persisted = (IPersistFile)instance;
+                persisted.Save(file, true);
+                persisted.Load(file, 0);
+                StringBuilder actualArguments = new StringBuilder(32768);
+                StringBuilder actualDirectory = new StringBuilder(32768);
+                link.GetArguments(actualArguments, actualArguments.Capacity);
+                link.GetWorkingDirectory(actualDirectory, actualDirectory.Capacity);
+                if (actualArguments.ToString() != arguments || !String.Equals(actualDirectory.ToString(), directory, StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException("Shortcut verification failed.");
+            } finally { Marshal.FinalReleaseComObject(instance); }
+        }
+    }
 }
+'@
+}
+$shortcutTarget = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+$shortcutArguments = '-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "' + $shortcutLauncher + '"'
+[DouK.DesktopLink]::Save($shortcutPath, $shortcutTarget, $shortcutArguments, $PSScriptRoot,
+    '启动 DouK 后台并打开老板工作台', (Join-Path $env:SystemRoot 'System32\shell32.dll'))
 Write-Output $shortcutPath
 if ($shortcutBackup) { Write-Output ('Original shortcut backup: ' + $shortcutBackup) }
 if (-not $NoMessage) {
