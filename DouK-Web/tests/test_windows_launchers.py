@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 import shutil
+import struct
 import subprocess
 import tempfile
 import unittest
@@ -27,6 +28,26 @@ class WindowsLauncherTests(unittest.TestCase):
     def quote(value):
         return "'"+str(value).replace("'","''")+"'"
 
+    @staticmethod
+    def link_strings(path):
+        # Read the documented Shell Link StringData independently of COM.
+        # WScript.Shell also loses Chinese file names while reading on English Windows.
+        body=path.read_bytes()
+        assert struct.unpack_from('<I',body,0)[0]==0x4c
+        flags=struct.unpack_from('<I',body,0x14)[0]
+        assert flags & 0x80, 'Shell Link must preserve Unicode strings'
+        cursor=0x4c
+        if flags & 1:cursor+=2+struct.unpack_from('<H',body,cursor)[0]
+        if flags & 2:cursor+=struct.unpack_from('<I',body,cursor)[0]
+        values={}
+        for flag,name in ((4,'name'),(8,'relative'),(16,'directory'),(32,'arguments'),(64,'icon')):
+            if flags & flag:
+                size=struct.unpack_from('<H',body,cursor)[0]*2
+                cursor+=2
+                values[name]=body[cursor:cursor+size].decode('utf-16le')
+                cursor+=size
+        return values
+
     def test_shortcut_works_in_chinese_path_and_existing_entry_is_backed_up(self):
         with tempfile.TemporaryDirectory(prefix='DouK-shortcut-') as temp:
             base=Path(temp)/'老板 项目';base.mkdir()
@@ -34,6 +55,9 @@ class WindowsLauncherTests(unittest.TestCase):
             backup=Path(temp)/'入口备份'
             for name in ('setup-shortcut.ps1','open-workspace.ps1'):
                 shutil.copy2(ROOT/name,base/name)
+            (base/'open-workspace.ps1').write_text(
+                "[IO.File]::WriteAllText((Join-Path $PSScriptRoot 'launched.txt'),$PSScriptRoot)\n",
+                encoding='utf-8-sig')
             call=f"& {self.quote(base/'setup-shortcut.ps1')} -DesktopPath {self.quote(desktop)} -BackupDirectory {self.quote(backup)} -NoMessage;"
             self.run_ps(call)
             shortcut=desktop/'DouK 老板工作台.lnk'
@@ -43,12 +67,12 @@ class WindowsLauncherTests(unittest.TestCase):
             self.assertEqual(len(manifest),1)
             record=json.loads(manifest[0].read_text(encoding='utf-8-sig'))
             self.assertEqual(Path(record['backup']).read_bytes(),before)
-            query=f"$s=New-Object -ComObject WScript.Shell;$l=$s.CreateShortcut({self.quote(shortcut)});@{{target=$l.TargetPath;arguments=$l.Arguments;directory=$l.WorkingDirectory}}|ConvertTo-Json -Compress"
-            info=json.loads(self.run_ps(query).stdout)
-            self.assertTrue(info['target'].lower().endswith('powershell.exe'))
+            info=self.link_strings(shortcut)
             self.assertIn('-WindowStyle Hidden',info['arguments'])
             self.assertIn('"'+str((base/'open-workspace.ps1').resolve())+'"',info['arguments'])
             self.assertEqual(Path(info['directory']).resolve(),base.resolve())
+            self.run_ps(f"Start-Process -FilePath {self.quote(shortcut)} -Wait")
+            self.assertEqual(Path((base/'launched.txt').read_text(encoding='utf-8-sig')).resolve(),base.resolve())
 
     def test_launcher_opens_correct_entry_after_readiness_check_and_reports_failure(self):
         with tempfile.TemporaryDirectory(prefix='DouK-open-') as temp:
